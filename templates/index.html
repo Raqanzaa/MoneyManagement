@@ -2,51 +2,74 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Dashboard Keuangan - {{ user_name }}</title>
 </head>
-<body>
-    <h1>Halo, {{ user_name }}!</h1>
+<body class="bg-gray-100 text-gray-800">
 
-    <hr>
-    <h2>Tambah Transaksi Baru</h2>
-    <form action="/tambah" method="POST">
-        <label for="deskripsi">Deskripsi:</label><br>
-        <input type="text" id="deskripsi" name="deskripsi" required><br><br>
+    <div class="container mx-auto p-4 md:p-8">
 
-        <label for="jumlah">Jumlah:</label><br>
-        <input type="number" id="jumlah" name="jumlah" required><br><br>
+        <div class="p-8 mb-6 bg-white rounded-lg shadow-md">
+            <h1 class="text-4xl font-bold text-gray-900">Halo, {{ user_name }}!</h1>
+            <h3 class="text-xl mt-2">Saldo Anda Saat Ini: <span class="font-semibold text-blue-600">Rp {{ "{:,.0f}".format(saldo) }}</span></h3>
+        </div>
 
-        <label for="jenis">Jenis Transaksi:</label><br>
-        <select id="jenis" name="jenis">
-            <option value="pemasukan">Pemasukan</option>
-            <option value="pengeluaran">Pengeluaran</option>
-        </select><br><br>
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-2xl font-bold mb-4">Tambah Transaksi Baru</h2>
+            <form action="/tambah" method="POST">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label for="deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi</label>
+                        <input type="text" id="deskripsi" name="deskripsi" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="jumlah" class="block text-sm font-medium text-gray-700">Jumlah</label>
+                        <input type="number" id="jumlah" name="jumlah" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="jenis" class="block text-sm font-medium text-gray-700">Jenis Transaksi</label>
+                        <select id="jenis" name="jenis" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="pemasukan">Pemasukan</option>
+                            <option value="pengeluaran">Pengeluaran</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow">Tambah</button>
+                    </div>
+                </div>
+            </form>
+        </div>
 
-        <button type="submit">Tambah</button>
-    </form>
-    <hr>
-    <h2>Riwayat Transaksi</h2>
-    <table border="1" style="width:100%">
-        <thead>
-            <tr>
-                <th>Deskripsi</th>
-                <th>Jenis</th>
-                <th>Jumlah</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for trx in transactions %}
-            <tr>
-                <td>{{ trx.deskripsi }}</td>
-                <td>{{ trx.jenis }}</td>
-                {% if trx.jenis == 'pemasukan' %}
-                    <td style="color:green;">+ Rp {{ trx.jumlah }}</td>
-                {% else %}
-                    <td style="color:red;">- Rp {{ trx.jumlah }}</td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <h2 class="text-2xl font-bold p-6">Riwayat Transaksi</h2>
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for trx in transactions %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ trx.deskripsi }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            {% if trx.jenis == 'pemasukan' %}
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Pemasukan</span>
+                            {% else %}
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Pengeluaran</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold {% if trx.jenis == 'pemasukan' %}text-green-600{% else %}text-red-600{% endif %}">
+                            {% if trx.jenis == 'pemasukan' %}+{% else %}-{% endif %} Rp {{ "{:,.0f}".format(trx.jumlah) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>
