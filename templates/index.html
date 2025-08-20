@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Keuangan - {{ user_name }}</title>
+</head>
+<body>
+    <h1>Halo, {{ user_name }}!</h1>
+
+    <hr>
+    <h2>Tambah Transaksi Baru</h2>
+    <form action="/tambah" method="POST">
+        <label for="deskripsi">Deskripsi:</label><br>
+        <input type="text" id="deskripsi" name="deskripsi" required><br><br>
+
+        <label for="jumlah">Jumlah:</label><br>
+        <input type="number" id="jumlah" name="jumlah" required><br><br>
+
+        <label for="jenis">Jenis Transaksi:</label><br>
+        <select id="jenis" name="jenis">
+            <option value="pemasukan">Pemasukan</option>
+            <option value="pengeluaran">Pengeluaran</option>
+        </select><br><br>
+
+        <button type="submit">Tambah</button>
+    </form>
+    <hr>
+    <h2>Riwayat Transaksi</h2>
+    <table border="1" style="width:100%">
+        <thead>
+            <tr>
+                <th>Deskripsi</th>
+                <th>Jenis</th>
+                <th>Jumlah</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trx in transactions %}
+            <tr>
+                <td>{{ trx.deskripsi }}</td>
+                <td>{{ trx.jenis }}</td>
+                {% if trx.jenis == 'pemasukan' %}
+                    <td style="color:green;">+ Rp {{ trx.jumlah }}</td>
+                {% else %}
+                    <td style="color:red;">- Rp {{ trx.jumlah }}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
