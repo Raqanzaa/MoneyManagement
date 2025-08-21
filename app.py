@@ -6,7 +6,7 @@ app = Flask(__name__)
 # --- Konfigurasi dan Fungsi Helper untuk CSV ---
 
 # Nama file untuk menyimpan data
-CSV_FILE = 'transactions.csv'
+CSV_FILE = '/var/data/transactions.csv'
 # Nama kolom untuk file CSV kita
 FIELDNAMES = ['id', 'deskripsi', 'jumlah', 'jenis']
 nama_user = "Budi"
