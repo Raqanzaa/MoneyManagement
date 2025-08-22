@@ -2,43 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Keuangan (API Version)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Dashboard Keuangan - {{ user_name }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body class="bg-gray-100 text-gray-800">
-
     <div class="container mx-auto p-4 md:p-8">
-
-        <div class="p-8 mb-6 bg-white rounded-lg shadow-md">
-            <h1 class="text-4xl font-bold text-gray-900">Halo, {{ user_name }}!</h1>
-            <h3 class="text-xl mt-2">Saldo Anda Saat Ini: <span class="font-semibold text-blue-600">Rp {{ "{:,.0f}".format(saldo) }}</span></h3>
-        </div>
-
         <div class="bg-white p-6 rounded-lg shadow-md mb-6">
             <h2 class="text-2xl font-bold mb-4">Tambah Transaksi Baru</h2>
-            <form action="/tambah" method="POST">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                    <div>
-                        <label for="deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi</label>
-                        <input type="text" id="deskripsi" name="deskripsi" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
-                    </div>
-                    <div>
-                        <label for="jumlah" class="block text-sm font-medium text-gray-700">Jumlah</label>
-                        <input type="number" id="jumlah" name="jumlah" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
-                    </div>
-                    <div>
-                        <label for="jenis" class="block text-sm font-medium text-gray-700">Jenis Transaksi</label>
-                        <select id="jenis" name="jenis" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="pemasukan">Pemasukan</option>
-                            <option value="pengeluaran">Pengeluaran</option>
-                        </select>
-                    </div>
-                    <div>
-                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow">Tambah</button>
-                    </div>
-                </div>
-            </form>
+            <form id="add-transaction-form"> 
+                </form>
         </div>
 
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -46,30 +19,70 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
-                    </tr>
+                        </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    {% for trx in transactions %}
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ trx.deskripsi }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            {% if trx.jenis == 'pemasukan' %}
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Pemasukan</span>
-                            {% else %}
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Pengeluaran</span>
-                            {% endif %}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold {% if trx.jenis == 'pemasukan' %}text-green-600{% else %}text-red-600{% endif %}">
-                            {% if trx.jenis == 'pemasukan' %}+{% else %}-{% endif %} Rp {{ "{:,.0f}".format(trx.jumlah) }}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+                <tbody id="transaction-table-body" class="bg-white divide-y divide-gray-200">
+                    </tbody>
             </table>
         </div>
     </div>
+
+    <script>
+        const tableBody = document.getElementById('transaction-table-body');
+        const form = document.getElementById('add-transaction-form');
+
+        // Fungsi untuk mengambil data dari API dan membangun ulang tabel
+        async function fetchAndRenderTransactions() {
+            const response = await fetch('/api/transactions');
+            const transactions = await response.json();
+            
+            tableBody.innerHTML = ''; // Kosongkan tabel sebelum diisi ulang
+
+            transactions.forEach(trx => {
+                const row = document.createElement('tr');
+                // ... (Logika untuk membuat baris dan sel tabel dengan data trx) ...
+                // Ini adalah bagian paling kompleks, di mana Anda membuat HTML dari data
+                row.innerHTML = `
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">${trx.deskripsi}</td>
+                    <td class="px-6 py-4 text-sm">${trx.jenis === 'pemasukan' ? '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Pemasukan</span>' : '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Pengeluaran</span>'}</td>
+                    <td class="px-6 py-4 text-sm text-right font-semibold ${trx.jenis === 'pemasukan' ? 'text-green-600' : 'text-red-600'}">${trx.jenis === 'pemasukan' ? '+' : '-'} Rp ${trx.jumlah.toLocaleString('id-ID')}</td>
+                    <td class="px-6 py-4 text-center text-sm">
+                        <button onclick="deleteTransaction(${trx.id})" class="text-red-600 hover:text-red-900 ml-4" title="Hapus"><i class="bi bi-trash3-fill"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Fungsi untuk menghapus transaksi
+        async function deleteTransaction(id) {
+            if (!confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) return;
+
+            await fetch('/api/transactions/' + id, {
+                method: 'DELETE',
+            });
+            fetchAndRenderTransactions(); // Muat ulang data setelah menghapus
+        }
+        
+        // Event listener untuk form submission
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Mencegah refresh halaman
+            
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            await fetch('/api/transactions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            form.reset(); // Kosongkan form
+            fetchAndRenderTransactions(); // Muat ulang data
+        });
+
+        // Panggil fungsi saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', fetchAndRenderTransactions);
+    </script>
 </body>
 </html>

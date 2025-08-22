@@ -1,0 +1,46 @@
+{% extends 'layout.html' %} {% block title %}Dashboard - KeuanganKu{% endblock
+%} {% block content %}
+<h1 class="text-3xl font-bold mb-6">Dashboard</h1>
+<div id="welcome-message" class="bg-white p-6 rounded-lg shadow-md">
+    <p>Loading data...</p>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        // Use the correct key to retrieve the token from localStorage
+        const token = localStorage.getItem("jwt_token");
+        const welcomeMessage = document.getElementById("welcome-message");
+
+        // Jika tidak ada token, tendang kembali ke halaman login
+        if (!token) {
+            window.location.href = "/login";
+            return;
+        }
+
+        try {
+            // Ambil data profil yang dilindungi
+            const response = await fetch("/api/profile", {
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
+            });
+
+            if (response.ok) {
+                const user = await response.json();
+                welcomeMessage.innerHTML = `<h2 class="text-2xl">Selamat datang, ${user.email}!</h2><p>Ini adalah halaman dashboard pribadimu.</p>`;
+            } else if (response.status === 401) {
+                localStorage.removeItem("jwt_token");
+                window.location.href = "/login";
+            } else if (!response.ok) {
+                console.error("Error fetching profile:", response.status);
+            }
+        } catch (error) {
+            // Handle network errors or other exceptions
+            console.error("Error fetching profile:", error);
+            welcomeMessage.innerHTML = `<p class="text-red-500">Error loading profile. Please try again later.</p>`;
+            // Optionally redirect to login after a delay
+            // setTimeout(() => { window.location.href = '/login'; }, 2000);
+        }
+    });
+</script>
+{% endblock %}
